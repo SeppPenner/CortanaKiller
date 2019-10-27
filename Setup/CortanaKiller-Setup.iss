@@ -2,11 +2,11 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "CortanaKiller"
-#define MyAppVersion "1.0.0.3"
+#define MyAppVersion "1.0.1.0"
 #define MyAppPublisher "Hämmer Electronics"
 #define MyAppURL "softwareload24.de.tl"
 #define MyAppExeName "CortanaKiller.exe"
-#define MyPath "C:\Users\tim\Desktop\Updaten_Snyk\CortanaKiller"
+#define MyPath "C:\Users\Tim\Documents\Git\C# und VB\CortanaKiller"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -23,7 +23,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-DefaultDirName={pf}\{#MyAppName}
+DefaultDirName={commonpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 LicenseFile={#MyPath}\CortanaKiller\License.txt
@@ -42,7 +42,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "{#MyPath}\CortanaKiller\bin\Debug\CortanaKiller.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#MyPath}\CortanaKiller\bin\Release\CortanaKiller.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#MyPath}\CortanaKiller\License.txt"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
