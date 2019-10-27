@@ -14,6 +14,8 @@ The executable was written and tested in .Net 4.8.
 
 Change history
 --------------
+
+* **Version 1.0.1.0 (2019-10-27)** : Updated nuget packages, added GitVersionTask.
 * **Version 1.0.0.3 (2019-05-06)** : Updated .Net version to 4.8.
 * **Version 1.0.0.2 (2018-02-11)** : Switched to .Net to 4.7.
 * **Version 1.0.0.1 (2017-03-15)** : Switched to .Net to 4.6.2, Refactored code.
