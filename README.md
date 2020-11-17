@@ -2,7 +2,7 @@ CortanaKiller
 ====================================
 
 CortanaKiller is an executable to permanently kill the Cortana Background Task in Windows 10.
-The executable was written and tested in .Net 4.8.
+The executable was written and tested in .Net 5.0.
 
 [![Build status](https://ci.appveyor.com/api/projects/status/1k7itaajt66mxgc7?svg=true)](https://ci.appveyor.com/project/SeppPenner/cortanakiller)
 [![GitHub issues](https://img.shields.io/github/issues/SeppPenner/CortanaKiller.svg)](https://github.com/SeppPenner/CortanaKiller/issues)
@@ -15,8 +15,4 @@ The executable was written and tested in .Net 4.8.
 Change history
 --------------
 
-* **Version 1.0.1.0 (2019-10-27)** : Updated nuget packages, added GitVersionTask.
-* **Version 1.0.0.3 (2019-05-06)** : Updated .Net version to 4.8.
-* **Version 1.0.0.2 (2018-02-11)** : Switched to .Net to 4.7.
-* **Version 1.0.0.1 (2017-03-15)** : Switched to .Net to 4.6.2, Refactored code.
-* **Version 1.0.0.0 (2017-03-15)** : 1.0 release.
+See the [Changelog](https://github.com/SeppPenner/CortanaKiller/blob/master/Changelog.md).
