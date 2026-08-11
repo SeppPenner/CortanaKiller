@@ -15,11 +15,12 @@ Layout inside `src/CortanaKiller`:
 
 - `Program.cs`: `[STAThread] Main`, `Application.EnableVisualStyles`,
   `Application.SetCompatibleTextRenderingDefault(false)`, `Application.Run(new Main())`.
-- `Main.cs`: the entire logic of the application. Everything happens in the constructor of the
-  form.
+- `Main.cs`: the entire logic of the application. The constructor starts a timer, the timer handler
+  kills the matching processes.
 - `Main.Designer.cs` and `Main.resx`: the untouched designer output of an empty 284x261 form. The
   form is never shown, so its contents do not matter.
-- `GlobalUsings.cs`: all usings of the project, currently only `System.Diagnostics`.
+- `GlobalUsings.cs`: all usings of the project, currently `System.ComponentModel` and
+  `System.Diagnostics`.
 - `Remove.ico`: the application icon, referenced by `ApplicationIcon` and by the installer.
 - `License.txt`: copied to the output directory with `CopyToOutputDirectory=Always`, because the
   installer shows it as the license file. It is a byte identical copy of the `License.txt` in the
@@ -42,7 +43,7 @@ dotnet build src/CortanaKiller.sln -c Release
 There are no tests, so there is nothing to run with `dotnet test`. A behaviour change is verified
 by starting the published executable and looking at the process list, not at stdout.
 
-- Single target framework `net9.0-windows` in the one project, no multi-targeting.
+- Single target framework `net10.0-windows` in the one project, no multi-targeting.
   `RuntimeIdentifiers` is `win-x64`, but `build-setup-files.bat` publishes without `-r`, so the
   identifier only matters when someone passes it explicitly.
 - All build properties live directly in `CortanaKiller.csproj`. There is **no**
@@ -83,14 +84,17 @@ Follow the surrounding code, it is consistent in every hand written file:
 
 Do not silently "clean up" these, they are existing behaviour:
 
-- **All the work happens in the constructor.** `Main()` calls `InitializeComponent`, sets
-  `Visible = false` and then enters an endless loop that kills the matching processes. The
-  constructor never returns, so `Application.Run` never starts a message pump and the form is never
-  displayed. That is why the application has no window even though it is a Windows Forms
-  application, and it is also why it can only be ended through the task manager.
-- **The process name is matched with `Contains("searchui")`.** The Cortana background task is
-  `SearchUI.exe` on Windows 10, so the comparison is lowercased first. It is a substring match, any
-  future process whose name contains that text is killed as well.
+- **The form exists only to keep a message loop alive.** There is no user interface. `Main`
+  overrides `SetVisibleCore` and always passes `false` to the base implementation, because
+  `Application.Run(Form)` shows the form it is given. The work runs on a
+  `System.Windows.Forms.Timer` that fires once per second on the UI thread, so the process idles at
+  almost no CPU. There is no exit command either, the application can only be ended through the
+  task manager. Up to version 1.0.7.0 the kill loop was an endless `while (true)` in the
+  constructor without a pause, which pinned one CPU core at 100 percent.
+- **The process name is matched with `Contains("searchui", StringComparison.OrdinalIgnoreCase)`.**
+  The Cortana background task is `SearchUI.exe` on Windows 10. It is a substring match, any other
+  process whose name contains that text is killed as well. On Windows 11 there is no such process,
+  the search host is called `SearchHost.exe`, so the application has nothing to do there.
 - **Killing may fail and that is expected.** `Process.Kill` throws for processes of other users and
   for processes that already exited between enumeration and kill. The `catch` around the loop
   swallows everything on purpose, the next iteration tries again.
