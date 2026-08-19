@@ -28,7 +28,7 @@ Layout inside `src/CortanaKiller`:
 
 `Setup` holds the installer: `CortanaKiller-Setup.iss` (Inno Setup 6),
 `build-setup-files.bat` (cleans `bin` and `obj`, publishes, deletes the `*.pdb`) and the built
-`CortanaKiller-Setup.exe`, which is tracked although `.gitignore` excludes `*.exe`.
+`CortanaKiller-Setup.exe`, which is not tracked, `.gitignore` excludes `*.exe`.
 
 Repository root: `README.md` (spelled with capital letters here, the sibling repositories use
 `Readme.md`), `Changelog.md`, `License.txt` (MIT), `.gitignore`, `.gitattributes`. There is no
@@ -100,8 +100,9 @@ Do not silently "clean up" these, they are existing behaviour:
   swallows everything on purpose, the next iteration tries again.
 - **The form title is still `Form1`.** It comes straight from the designer template. Since the form
   is never shown, nobody ever sees it.
-- **The installer executable is tracked although `.gitignore` has `*.exe`.** Adding a new build of
-  `Setup/CortanaKiller-Setup.exe` needs `git add -f`, a plain `git add -A` skips it.
+- **The installer executable belongs on the release, not into a commit.** Up to and including 1.0.8
+  `Setup/CortanaKiller-Setup.exe` was tracked, added with `git add -f` against the `*.exe` rule of
+  `.gitignore`. Do not add it back.
 - **AppVeyor badge without CI in the repository.** `README.md` links an AppVeyor build that is
   configured outside of this repository. There is no pipeline file here.
 - **`src/CortanaKiller.sln.DotSettings`** is tracked and holds nothing but a ReSharper user
@@ -121,12 +122,31 @@ Do not silently "clean up" these, they are existing behaviour:
 6. Run `Setup/build-setup-files.bat` and compile the installer with
    `ISCC.exe Setup/CortanaKiller-Setup.iss`. This has to happen **after** the tag, otherwise
    GitVersion burns a prerelease version into the shipped executable.
-7. Commit the new `Setup/CortanaKiller-Setup.exe` with `git add -f`.
-8. Push the commits and the tag.
+7. Push the commits and the tag.
+8. Attach `Setup/CortanaKiller-Setup.exe` to the GitHub release of that tag. **Never commit the
+   installer.** `Setup/` is the `OutputDir` of the Inno Setup script, so the file lands there during
+   the build and `.gitignore` covers it afterwards.
 
 The version in the `Changelog.md` has four parts (`1.0.8.0`), the tag has three (`1.0.8`).
 GitVersion turns the tag into the assembly version, so an untagged commit produces something like
-`1.0.8-1+Branch.master.Sha...`. There is no package to push, so the release ends with the push.
+`1.0.8-1+Branch.master.Sha...`. There is no package to push, so the release ends with the asset
+upload.
+
+For step 8 there is no `gh` on this machine. The GitHub API does the job, with the token that
+`git push` already uses, so nothing has to be stored anywhere:
+
+```bash
+c=$(printf "protocol=https\nhost=github.com\n\n" | git credential fill)
+tok=$(printf "%s" "$c" | grep '^password=' | cut -d= -f2-)
+id=$(curl -s -X POST -H "Authorization: Bearer $tok" \
+  https://api.github.com/repos/SeppPenner/CortanaKiller/releases \
+  -d '{"tag_name":"1.0.9","name":"1.0.9"}' | grep -m1 '"id"' | tr -dc 0-9)
+curl -s -X POST -H "Authorization: Bearer $tok" -H "Content-Type: application/octet-stream" \
+  --data-binary @Setup/CortanaKiller-Setup.exe \
+  "https://uploads.github.com/repos/SeppPenner/CortanaKiller/releases/$id/assets?name=CortanaKiller-Setup.exe"
+```
+
+Never print that token, and never write it into a file.
 
 ## Git
 
